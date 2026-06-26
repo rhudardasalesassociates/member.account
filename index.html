@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RHUDARDA MPC – Member Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* =============================================
+       DESIGN TOKENS
+    ============================================= */
+    :root {
+      --navy:      #0F2449;
+      --navy-mid:  #1A3A6B;
+      --navy-light:#243F78;
+      --teal:      #1A7A6E;
+      --teal-light:#22A99A;
+      --teal-bg:   #E6F4F2;
+      --gold:      #D4A843;
+      --gold-light:#F0D990;
+      --white:     #FFFFFF;
+      --off-white: #F8FAFC;
+      --gray-50:   #F1F5F9;
+      --gray-100:  #E8EDF4;
+      --gray-200:  #CBD5E1;
+      --gray-400:  #94A3B8;
+      --gray-600:  #475569;
+      --gray-800:  #1E293B;
+      --red:       #DC2626;
+      --green:     #16A34A;
+      --shadow-sm: 0 1px 3px rgba(15,36,73,.08), 0 1px 2px rgba(15,36,73,.06);
+      --shadow:    0 4px 16px rgba(15,36,73,.10);
+      --shadow-lg: 0 10px 32px rgba(15,36,73,.14);
+      --radius:    12px;
+      --sidebar-w: 256px;
+    }
+
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--off-white);
+      color: var(--gray-800);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    table { border-collapse: collapse; width: 100%; }
+
+    /* =============================================
+       UTILITIES
+    ============================================= */
+    .hidden   { display: none !important; }
+    .sr-only  { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    .flex     { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2  { gap: .5rem; }
+    .gap-3  { gap: .75rem; }
+    .gap-4  { gap: 1rem; }
+    .gap-6  { gap: 1.5rem; }
+    .grid   { display: grid; }
+    .w-full { width: 100%; }
+    .text-sm   { font-size: .875rem; }
+    .text-xs   { font-size: .75rem; }
+    .font-500  { font-weight: 500; }
+    .font-600  { font-weight: 600; }
+    .font-700  { font-weight: 700; }
+    .font-800  { font-weight: 800; }
+    .text-teal { color: var(--teal); }
+    .text-gold { color: var(--gold); }
+    .text-muted { color: var(--gray-400); }
+    .mt-1 { margin-top: .25rem; }
+    .mt-2 { margin-top: .5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+
+    /* =============================================
+       PAGES SYSTEM
+    ============================================= */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* =============================================
+       LOGIN PAGE
+    ============================================= */
+    #page-login {
+      min-height: 100vh;
+      display: none; /* shown via JS */
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, var(--teal) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    #page-login.active { display: flex; align-items: center; justify-content: center; }
+
+    /* decorative circles */
+    #page-login::before,
+    #page-login::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      opacity: .07;
+      background: var(--white);
+    }
+    #page-login::before { width: 600px; height: 600px; top: -200px; right: -150px; }
+    #page-login::after  { width: 400px; height: 400px; bottom: -150px; left: -100px; }
+
+    .login-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      margin: 1rem;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      z-index: 1;
+    }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .login-logo .logo-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--navy), var(--teal));
+      border-radius: 16px;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: .75rem;
+    }
+    .login-logo .logo-icon svg { width: 36px; height: 36px; fill: white; }
+    .login-logo h1 { font-size: 1.375rem; font-weight: 800; color: var(--navy); letter-spacing: -.02em; }
+    .login-logo p  { font-size: .8125rem; color: var(--gray-400); margin-top: .2rem; }
+
+    .form-group { margin-bottom: 1.125rem; }
+    .form-group label {
+      display: block;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: .375rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: .6875rem 1rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      font-size: .9375rem;
+      font-family: inherit;
+      color: var(--gray-800);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      background: var(--white);
+    }
+    .form-control:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(26,122,110,.12);
+    }
+    .form-row-link {
+      display: flex; justify-content: flex-end;
+      margin-top: -.25rem; margin-bottom: .875rem;
+    }
+    .form-row-link a {
+      font-size: .8125rem; color: var(--teal); font-weight: 500;
+      transition: color .2s;
+    }
+    .form-row-link a:hover { color: var(--navy); }
+
+    .btn-primary {
+      width: 100%;
+      padding: .8125rem 1.5rem;
+      background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+      color: white;
+      border-radius: 10px;
+      font-size: .9375rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+      transition: transform .15s, box-shadow .15s, background .2s;
+      box-shadow: 0 4px 14px rgba(15,36,73,.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(15,36,73,.4);
+      background: linear-gradient(135deg, var(--teal), var(--navy-mid));
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: .8125rem;
+      color: var(--gray-400);
+    }
+    .login-footer a { color: var(--teal); font-weight: 600; }
+    .login-footer a:hover { color: var(--navy); }
+
+    .login-divider {
+      display: flex; align-items: center; gap: .75rem;
+      margin: 1.25rem 0;
+      color: var(--gray-200);
+      font-size: .75rem; color: var(--gray-400);
+    }
+    .login-divider::before,
+    .login-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--gray-100);
+    }
+
+    /* error message */
+    .login-error {
+      background: #FEF2F2; border: 1px solid #FECACA;
+      color: var(--red); border-radius: 8px;
+      padding: .625rem .875rem; font-size: .8125rem;
+      margin-bottom: 1rem; display: none;
+    }
+
+    /* =============================================
+       APP SHELL (sidebar + content)
+    ============================================= */
+    #app-shell { display: none; min-height: 100vh; }
+    #app-shell.active { display: flex; }
+
+    /* ---- SIDEBAR ---- */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 100;
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      overflow-y: auto;
+      /* subtle diagonal watermark pattern */
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          rgba(255,255,255,.015) 0px, rgba(255,255,255,.015) 1px,
+          transparent 1px, transparent 20px
+        );
+    }
+
+    .sidebar-logo {
+      padding: 1.5rem 1.25rem 1.125rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .sidebar-logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sidebar-logo-icon svg { width: 22px; height: 22px; fill: white; }
+    .sidebar-logo-text h2 { font-size: .9375rem; font-weight: 800; color: white; line-height: 1.2; }
+    .sidebar-logo-text p  { font-size: .6875rem; color: rgba(255,255,255,.45); letter-spacing: .04em; text-transform: uppercase; }
+
+    /* member mini-profile in sidebar */
+    .sidebar-member {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .sidebar-avatar {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--gold), var(--teal-light));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; font-weight: 700; color: white;
+      flex-shrink: 0;
+    }
+    .sidebar-member-info h3 { font-size: .8125rem; font-weight: 600; color: white; }
+    .sidebar-member-info p  { font-size: .6875rem; color: rgba(255,255,255,.45); }
+
+    /* nav items */
+    .sidebar-nav { padding: .75rem 0; flex: 1; }
+    .nav-section-label {
+      font-size: .625rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      padding: .75rem 1.25rem .375rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .6875rem 1.25rem;
+      color: rgba(255,255,255,.65);
+      font-size: .875rem; font-weight: 500;
+      transition: background .15s, color .15s;
+      border-radius: 0;
+      cursor: pointer;
+      position: relative;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.06); color: white; }
+    .nav-item.active {
+      background: rgba(26,122,110,.25);
+      color: white;
+      font-weight: 600;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--teal-light);
+      border-radius: 0 3px 3px 0;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: .8; }
+    .nav-item.active svg { opacity: 1; }
+
+    /* sidebar logout area */
+    .sidebar-footer {
+      padding: .75rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-footer .nav-item {
+      border-radius: 8px;
+      color: rgba(255,255,255,.5);
+    }
+    .sidebar-footer .nav-item:hover {
+      background: rgba(220,38,38,.15);
+      color: #FCA5A5;
+    }
+
+    /* ---- MOBILE OVERLAY ---- */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(15,36,73,.5);
+      z-index: 99;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* ---- MAIN CONTENT AREA ---- */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* topbar */
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--gray-100);
+      padding: .875rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 1rem; }
+    .burger-btn {
+      display: none;
+      width: 36px; height: 36px;
+      align-items: center; justify-content: center;
+      background: var(--gray-50); border-radius: 8px;
+      color: var(--gray-600);
+      transition: background .15s;
+    }
+    .burger-btn:hover { background: var(--gray-100); }
+    .burger-btn svg { width: 20px; height: 20px; }
+    .topbar-page-title { font-size: 1rem; font-weight: 700; color: var(--navy); }
+
+    .topbar-right { display: flex; align-items: center; gap: .75rem; }
+    .topbar-date { font-size: .8125rem; color: var(--gray-400); }
+    .notification-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--gray-50); border-radius: 8px;
+      color: var(--gray-600); position: relative;
+      transition: background .15s;
+    }
+    .notification-btn:hover { background: var(--gray-100); }
+    .notification-btn svg { width: 18px; height: 18px; }
+    .notif-dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--teal); border: 2px solid white;
+    }
+    .topbar-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--gold), var(--teal-light));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8125rem; font-weight: 700; color: white;
+      cursor: pointer;
+    }
+
+    /* ---- PAGE CONTENT WRAPPER ---- */
+    .content { padding: 1.75rem 1.5rem; flex: 1; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--navy); letter-spacing: -.02em; }
+    .page-header p  { color: var(--gray-400); font-size: .875rem; margin-top: .25rem; }
+
+    /* =============================================
+       CARDS
+    ============================================= */
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+    }
+    .card-body { padding: 1.25rem; }
+    .card-title {
+      font-size: .8125rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--gray-400); margin-bottom: .75rem;
+    }
+
+    /* Summary cards grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      position: relative;
+      overflow: hidden;
+    }
+    /* accent bar on the left */
+    .summary-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px;
+    }
+    .summary-card.navy::before   { background: var(--navy); }
+    .summary-card.teal::before   { background: var(--teal); }
+    .summary-card.gold::before   { background: var(--gold); }
+
+    .summary-card .sc-label {
+      font-size: .75rem; font-weight: 600;
+      color: var(--gray-400); text-transform: uppercase;
+      letter-spacing: .07em; margin-bottom: .5rem;
+    }
+    .summary-card .sc-value {
+      font-size: 1.625rem; font-weight: 800;
+      color: var(--navy); letter-spacing: -.03em; line-height: 1.15;
+    }
+    .summary-card .sc-sub {
+      font-size: .8125rem; color: var(--gray-400); margin-top: .375rem;
+    }
+    .summary-card .sc-icon {
+      position: absolute; right: 1rem; top: 1rem;
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .summary-card.navy .sc-icon { background: rgba(15,36,73,.08); color: var(--navy); }
+    .summary-card.teal .sc-icon { background: var(--teal-bg); color: var(--teal); }
+    .summary-card.gold .sc-icon { background: rgba(212,168,67,.12); color: var(--gold); }
+    .summary-card .sc-icon svg { width: 20px; height: 20px; }
+
+    /* status badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .6rem;
+      border-radius: 999px;
+      font-size: .6875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .badge.green { background: #DCFCE7; color: #15803D; }
+    .badge.gold  { background: rgba(212,168,67,.15); color: #92690A; }
+    .badge.red   { background: #FEE2E2; color: #B91C1C; }
+    .badge.blue  { background: #DBEAFE; color: #1D4ED8; }
+    .badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* =============================================
+       TABLE
+    ============================================= */
+    .table-wrap { overflow-x: auto; }
+    .data-table { min-width: 500px; }
+    .data-table th {
+      padding: .75rem 1rem;
+      text-align: left;
+      font-size: .6875rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: var(--gray-400);
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .data-table td {
+      padding: .875rem 1rem;
+      font-size: .875rem; color: var(--gray-800);
+      border-bottom: 1px solid var(--gray-50);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--gray-50); }
+
+    .amount-pos { color: var(--green); font-weight: 700; }
+    .amount-neg { color: var(--red); font-weight: 700; }
+
+    /* =============================================
+       PROGRESS BAR
+    ============================================= */
+    .progress-wrap {
+      height: 10px;
+      background: var(--gray-100);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: .5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--teal), var(--teal-light));
+      transition: width 1s ease-in-out;
+    }
+
+    /* =============================================
+       LOAN CARD
+    ============================================= */
+    .loan-card {
+      background: white;
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .loan-card + .loan-card { margin-top: 1rem; }
+    .loan-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: .5rem;
+    }
+    .loan-type { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    .loan-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .75rem; margin: 1rem 0; }
+    .loan-meta-item .lm-label { font-size: .6875rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .loan-meta-item .lm-value { font-size: .9375rem; font-weight: 700; color: var(--navy); margin-top: .15rem; }
+    .loan-progress-label {
+      display: flex; justify-content: space-between;
+      font-size: .75rem; color: var(--gray-400); margin-top: .875rem;
+    }
+
+    /* =============================================
+       SERVICES CARDS
+    ============================================= */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .service-card {
+      background: white;
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius);
+      padding: 1.375rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .service-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: .875rem;
+    }
+    .service-icon svg { width: 26px; height: 26px; }
+    .service-icon.teal { background: var(--teal-bg); color: var(--teal); }
+    .service-icon.navy { background: rgba(15,36,73,.08); color: var(--navy); }
+    .service-icon.gold { background: rgba(212,168,67,.12); color: var(--gold); }
+    .service-card h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: .375rem; }
+    .service-card p  { font-size: .875rem; color: var(--gray-600); line-height: 1.55; }
+    .service-card .service-action {
+      margin-top: .875rem;
+      display: inline-flex; align-items: center; gap: .375rem;
+      font-size: .8125rem; font-weight: 600; color: var(--teal);
+      transition: gap .15s;
+    }
+    .service-card .service-action:hover { gap: .6rem; }
+    .service-card .service-action svg { width: 14px; height: 14px; }
+
+    /* seminar table */
+    .seminar-list { margin-top: .75rem; }
+    .seminar-item {
+      display: flex; align-items: center; gap: .875rem;
+      padding: .625rem 0; border-bottom: 1px solid var(--gray-50);
+    }
+    .seminar-item:last-child { border-bottom: none; }
+    .seminar-date-box {
+      text-align: center; flex-shrink: 0;
+      background: var(--teal-bg); border-radius: 8px;
+      padding: .375rem .625rem; min-width: 48px;
+    }
+    .seminar-date-box .day  { font-size: 1.125rem; font-weight: 800; color: var(--teal); line-height: 1; }
+    .seminar-date-box .mon  { font-size: .625rem; font-weight: 600; color: var(--teal); text-transform: uppercase; }
+    .seminar-info h4 { font-size: .875rem; font-weight: 600; color: var(--navy); }
+    .seminar-info p  { font-size: .75rem; color: var(--gray-400); }
+
+    /* =============================================
+       SAVINGS PAGE
+    ============================================= */
+    .savings-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .savings-type-card {
+      background: white; border: 1px solid var(--gray-100);
+      border-radius: var(--radius); padding: 1.125rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .stc-icon { width: 36px; height: 36px; border-radius: 8px; margin-bottom: .625rem;
+      display: flex; align-items: center; justify-content: center; }
+    .stc-icon svg { width: 18px; height: 18px; }
+    .stc-icon.teal { background: var(--teal-bg); color: var(--teal); }
+    .stc-icon.navy { background: rgba(15,36,73,.08); color: var(--navy); }
+    .stc-icon.gold { background: rgba(212,168,67,.12); color: var(--gold); }
+    .stc-label { font-size: .6875rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .stc-amount { font-size: 1.25rem; font-weight: 800; color: var(--navy); margin: .25rem 0; }
+    .stc-rate { font-size: .75rem; color: var(--teal); font-weight: 600; }
+
+    /* =============================================
+       MODAL (Apply for Loan)
+    ============================================= */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(15,36,73,.5); z-index: 200;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white; border-radius: 16px;
+      width: 100%; max-width: 480px; margin: 1rem;
+      box-shadow: var(--shadow-lg);
+      animation: modal-in .2s ease-out;
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(-16px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 1.0625rem; font-weight: 700; color: var(--navy); }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gray-400); background: var(--gray-50);
+      transition: background .15s;
+    }
+    .modal-close:hover { background: var(--gray-100); color: var(--gray-800); }
+    .modal-close svg { width: 16px; height: 16px; }
+    .modal-body { padding: 1.375rem 1.5rem; }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--gray-100);
+      display: flex; gap: .75rem; justify-content: flex-end;
+    }
+    .btn-secondary {
+      padding: .6875rem 1.25rem;
+      background: var(--gray-50); border-radius: 8px;
+      font-size: .875rem; font-weight: 600; color: var(--gray-600);
+      transition: background .15s;
+    }
+    .btn-secondary:hover { background: var(--gray-100); }
+    .btn-teal {
+      padding: .6875rem 1.375rem;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-radius: 8px; color: white;
+      font-size: .875rem; font-weight: 700;
+      box-shadow: 0 4px 12px rgba(26,122,110,.3);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-teal:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,122,110,.4); }
+
+    /* =============================================
+       PROFILE PAGE
+    ============================================= */
+    .profile-header-card {
+      background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      display: flex; align-items: center; gap: 1.25rem;
+      color: white; margin-bottom: 1.5rem;
+    }
+    .profile-avatar-lg {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--teal-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.75rem; font-weight: 800; color: white;
+      border: 3px solid rgba(255,255,255,.25);
+      flex-shrink: 0;
+    }
+    .profile-header-info h2 { font-size: 1.25rem; font-weight: 800; }
+    .profile-header-info p  { font-size: .875rem; opacity: .7; margin-top: .2rem; }
+    .profile-header-info .profile-badges { display: flex; gap: .5rem; margin-top: .625rem; flex-wrap: wrap; }
+
+    .profile-section { background: white; border-radius: var(--radius); border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm); margin-bottom: 1rem; }
+    .profile-section-title {
+      padding: .875rem 1.25rem; border-bottom: 1px solid var(--gray-50);
+      font-size: .875rem; font-weight: 700; color: var(--navy);
+    }
+    .profile-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .75rem 1.25rem; border-bottom: 1px solid var(--gray-50);
+      font-size: .875rem;
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row .key { color: var(--gray-400); font-weight: 500; }
+    .profile-row .val { color: var(--navy); font-weight: 600; }
+
+    /* toast */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--navy); color: white;
+      padding: .75rem 1.25rem; border-radius: 10px;
+      font-size: .875rem; font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap: .625rem;
+      z-index: 999; transform: translateY(10px); opacity: 0;
+      transition: transform .25s, opacity .25s;
+      pointer-events: none;
+    }
+    .toast.show { transform: none; opacity: 1; }
+    .toast svg { width: 16px; height: 16px; color: var(--teal-light); }
+
+    /* =============================================
+       RESPONSIVE — MOBILE
+    ============================================= */
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar {
+        width: 256px;
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: none; }
+      .main { margin-left: 0; }
+      .burger-btn { display: flex; }
+      .topbar-date { display: none; }
+      .content { padding: 1.25rem 1rem; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .data-table th, .data-table td { padding: .625rem .75rem; }
+    }
+    @media (max-width: 480px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .profile-header-card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================================================
+     LOGIN PAGE
+================================================ -->
+<div id="page-login" class="page active">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">
+        <!-- cooperative/shield SVG icon -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6l-9-4zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H8c0-2.21 1.79-4 4-4s4 1.79 4 4z"/>
+        </svg>
+      </div>
+      <h1>RHUDARDA MPC</h1>
+      <p>Member Portal — Secure Access</p>
+    </div>
+
+    <div class="login-error" id="login-error">
+      Incorrect Member ID or Password. Please try again.
+    </div>
+
+    <div class="form-group">
+      <label for="member-id">Member ID / Email</label>
+      <input type="text" id="member-id" class="form-control" placeholder="e.g. RHU-2024-001 or email@example.com" />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" class="form-control" placeholder="Enter your password" />
+    </div>
+
+    <div class="form-row-link">
+      <a href="#" onclick="showToast('Password reset link will be sent to your registered email.'); return false;">Forgot Password?</a>
+    </div>
+
+    <button class="btn-primary" onclick="handleLogin()">Sign In to Portal</button>
+
+    <div class="login-divider">or</div>
+
+    <div class="login-footer">
+      Not yet a member?
+      <a href="#" onclick="showToast('Please visit our office at Del Pilar St., Polillo, Quezon to register.'); return false;">Request Account Access</a>
+    </div>
+
+    <div style="margin-top:1.25rem; background:var(--teal-bg); border-radius:8px; padding:.75rem 1rem; font-size:.75rem; color:var(--gray-600); text-align:center;">
+      🔒 Demo: use any Member ID &amp; password to log in
+    </div>
+  </div>
+</div>
+
+<!-- ================================================
+     APP SHELL
+================================================ -->
+<div id="app-shell">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main Navigation">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6l-9-4z"/>
+        </svg>
+      </div>
+      <div class="sidebar-logo-text">
+        <h2>RHUDARDA MPC</h2>
+        <p>Member Portal</p>
+      </div>
+    </div>
+
+    <div class="sidebar-member">
+      <div class="sidebar-avatar" id="sidebar-avatar">JD</div>
+      <div class="sidebar-member-info">
+        <h3 id="sidebar-name">Juan dela Cruz</h3>
+        <p id="sidebar-id">RHU-2021-047</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+
+      <div class="nav-item active" onclick="navigateTo('dashboard')" data-page="dashboard">
+        <!-- home icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </div>
+
+      <div class="nav-item" onclick="navigateTo('savings')" data-page="savings">
+        <!-- piggy bank icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 00-5 5v1H6a3 3 0 00-3 3v6a3 3 0 003 3h12a3 3 0 003-3v-6a3 3 0 00-3-3h-1V7a5 5 0 00-5-5z"/><circle cx="16" cy="12" r="1"/></svg>
+        Savings
+      </div>
+
+      <div class="nav-item" onclick="navigateTo('loans')" data-page="loans">
+        <!-- credit card icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Loans
+      </div>
+
+      <div class="nav-item" onclick="navigateTo('services')" data-page="services">
+        <!-- grid icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Other Services
+      </div>
+
+      <div class="nav-section-label" style="margin-top:.5rem;">Account</div>
+
+      <div class="nav-item" onclick="navigateTo('profile')" data-page="profile">
+        <!-- user icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="nav-item" onclick="handleLogout()">
+        <!-- logout icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger-btn" onclick="openSidebar()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="topbar-page-title" id="topbar-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+        <button class="notification-btn" onclick="showToast('You have 2 unread notifications.')" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+        <div class="topbar-avatar" id="topbar-avatar" onclick="navigateTo('profile')">JD</div>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="content">
+
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <section id="page-dashboard" class="page active">
+        <div class="page-header">
+          <h1 id="welcome-msg">Welcome back, Juan! 👋</h1>
+          <p>Here's a summary of your cooperative accounts.</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+          <div class="summary-card teal">
+            <div class="sc-label">Total Savings Balance</div>
+            <div class="sc-value">₱48,750.00</div>
+            <div class="sc-sub">Across all savings types</div>
+            <div class="sc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 00-5 5v1H6a3 3 0 00-3 3v6a3 3 0 003 3h12a3 3 0 003-3v-6a3 3 0 00-3-3h-1V7a5 5 0 00-5-5z"/><circle cx="16" cy="12" r="1"/></svg>
+            </div>
+          </div>
+          <div class="summary-card navy">
+            <div class="sc-label">Active Loan Balance</div>
+            <div class="sc-value">₱32,500.00</div>
+            <div class="sc-sub">Multi-Purpose Loan</div>
+            <div class="sc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+          </div>
+          <div class="summary-card gold">
+            <div class="sc-label">Next Payment Due</div>
+            <div class="sc-value">₱1,850.00</div>
+            <div class="sc-sub">Due: July 15, 2026</div>
+            <div class="sc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-body" style="padding-bottom:.5rem;">
+            <div class="flex items-center justify-between mb-4">
+              <div class="card-title" style="margin-bottom:0;">Recent Transactions</div>
+              <span class="badge green">Up to date</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Balance After</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jun 15, 2026</td>
+                  <td>Monthly Savings Deposit</td>
+                  <td><span class="badge green">Savings</span></td>
+                  <td class="amount-pos">+ ₱500.00</td>
+                  <td>₱48,750.00</td>
+                </tr>
+                <tr>
+                  <td>Jun 15, 2026</td>
+                  <td>Loan Payment – Multi-Purpose</td>
+                  <td><span class="badge blue">Loan</span></td>
+                  <td class="amount-neg">– ₱1,850.00</td>
+                  <td>₱32,500.00</td>
+                </tr>
+                <tr>
+                  <td>May 15, 2026</td>
+                  <td>Monthly Savings Deposit</td>
+                  <td><span class="badge green">Savings</span></td>
+                  <td class="amount-pos">+ ₱500.00</td>
+                  <td>₱48,250.00</td>
+                </tr>
+                <tr>
+                  <td>May 15, 2026</td>
+                  <td>Loan Payment – Multi-Purpose</td>
+                  <td><span class="badge blue">Loan</span></td>
+                  <td class="amount-neg">– ₱1,850.00</td>
+                  <td>₱34,350.00</td>
+                </tr>
+                <tr>
+                  <td>May 05, 2026</td>
+                  <td>Share Capital Contribution</td>
+                  <td><span class="badge gold">Capital</span></td>
+                  <td class="amount-pos">+ ₱200.00</td>
+                  <td>₱47,750.00</td>
+                </tr>
+                <tr>
+                  <td>Apr 15, 2026</td>
+                  <td>Interest Earned – Regular Savings</td>
+                  <td><span class="badge green">Interest</span></td>
+                  <td class="amount-pos">+ ₱152.00</td>
+                  <td>₱47,550.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SAVINGS PAGE ===== -->
+      <section id="page-savings" class="page">
+        <div class="page-header">
+          <h1>My Savings Accounts</h1>
+          <p>View all your savings, share capital, and time deposit balances.</p>
+        </div>
+
+        <!-- Savings Type Cards -->
+        <div class="savings-type-grid">
+          <div class="savings-type-card">
+            <div class="stc-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
+            <div class="stc-label">Regular Savings (RSA)</div>
+            <div class="stc-amount">₱28,400.00</div>
+            <div class="stc-rate">3.5% per annum</div>
+          </div>
+          <div class="savings-type-card">
+            <div class="stc-icon navy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="stc-label">Share Capital (SC)</div>
+            <div class="stc-amount">₱15,600.00</div>
+            <div class="stc-rate">Dividend-bearing</div>
+          </div>
+          <div class="savings-type-card">
+            <div class="stc-icon gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="stc-label">Time Deposit (TD)</div>
+            <div class="stc-amount">₱4,750.00</div>
+            <div class="stc-rate">5.0% — Matures Aug 2026</div>
+          </div>
+        </div>
+
+        <!-- Savings History Table -->
+        <div class="card">
+          <div class="card-body" style="padding-bottom:.5rem;">
+            <div class="card-title">Savings Contribution History</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Savings Type</th>
+                  <th>Contribution</th>
+                  <th>Interest Earned</th>
+                  <th>Running Balance</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Jun 15, 2026</td><td>Regular Savings</td><td class="amount-pos">+₱500.00</td><td class="amount-pos">+₱152.00</td><td>₱28,400.00</td><td>Monthly deposit</td></tr>
+                <tr><td>May 15, 2026</td><td>Regular Savings</td><td class="amount-pos">+₱500.00</td><td class="amount-pos">+₱149.00</td><td>₱27,748.00</td><td>Monthly deposit</td></tr>
+                <tr><td>May 05, 2026</td><td>Share Capital</td><td class="amount-pos">+₱200.00</td><td>—</td><td>₱15,600.00</td><td>Capital contribution</td></tr>
+                <tr><td>Apr 15, 2026</td><td>Regular Savings</td><td class="amount-pos">+₱500.00</td><td class="amount-pos">+₱143.00</td><td>₱27,099.00</td><td>Monthly deposit</td></tr>
+                <tr><td>Mar 31, 2026</td><td>Time Deposit</td><td class="amount-pos">+₱2,000.00</td><td>—</td><td>₱4,750.00</td><td>TD placement</td></tr>
+                <tr><td>Mar 15, 2026</td><td>Regular Savings</td><td class="amount-pos">+₱500.00</td><td class="amount-pos">+₱140.00</td><td>₱24,456.00</td><td>Monthly deposit</td></tr>
+                <tr><td>Feb 15, 2026</td><td>Regular Savings</td><td class="amount-pos">+₱500.00</td><td class="amount-pos">+₱136.00</td><td>₱23,816.00</td><td>Monthly deposit</td></tr>
+                <tr><td>Feb 05, 2026</td><td>Share Capital</td><td class="amount-pos">+₱200.00</td><td>—</td><td>₱15,400.00</td><td>Capital contribution</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== LOANS PAGE ===== -->
+      <section id="page-loans" class="page">
+        <div class="page-header">
+          <div class="flex items-center justify-between" style="flex-wrap:wrap; gap:.75rem;">
+            <div>
+              <h1>My Loans</h1>
+              <p>Track your active loans and repayment progress.</p>
+            </div>
+            <button class="btn-teal" onclick="openLoanModal()">+ Apply for New Loan</button>
+          </div>
+        </div>
+
+        <!-- Active Loan Card 1 -->
+        <div class="loan-card">
+          <div class="loan-header">
+            <div>
+              <div class="loan-type">Multi-Purpose Loan</div>
+              <div style="margin-top:.3rem;"><span class="badge green">Active</span></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:.75rem; color:var(--gray-400);">Remaining Balance</div>
+              <div style="font-size:1.5rem; font-weight:800; color:var(--navy);">₱32,500.00</div>
+            </div>
+          </div>
+          <div class="loan-meta">
+            <div class="loan-meta-item"><div class="lm-label">Original Amount</div><div class="lm-value">₱50,000.00</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Interest Rate</div><div class="lm-value">12% p.a.</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Monthly Payment</div><div class="lm-value">₱1,850.00</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Loan Term</div><div class="lm-value">36 months</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Date Released</div><div class="lm-value">Jul 15, 2024</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Maturity Date</div><div class="lm-value">Jul 15, 2027</div></div>
+          </div>
+          <div class="loan-progress-label">
+            <span>Paid: ₱17,500.00 (35%)</span>
+            <span>Remaining: ₱32,500.00 (65%)</span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-fill" id="loan1-progress" style="width:35%"></div>
+          </div>
+        </div>
+
+        <!-- Active Loan Card 2 -->
+        <div class="loan-card">
+          <div class="loan-header">
+            <div>
+              <div class="loan-type">Emergency Loan</div>
+              <div style="margin-top:.3rem;"><span class="badge green">Active</span></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:.75rem; color:var(--gray-400);">Remaining Balance</div>
+              <div style="font-size:1.5rem; font-weight:800; color:var(--navy);">₱1,200.00</div>
+            </div>
+          </div>
+          <div class="loan-meta">
+            <div class="loan-meta-item"><div class="lm-label">Original Amount</div><div class="lm-value">₱5,000.00</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Interest Rate</div><div class="lm-value">10% p.a.</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Monthly Payment</div><div class="lm-value">₱450.00</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Loan Term</div><div class="lm-value">12 months</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Date Released</div><div class="lm-value">Oct 01, 2025</div></div>
+            <div class="loan-meta-item"><div class="lm-label">Maturity Date</div><div class="lm-value">Oct 01, 2026</div></div>
+          </div>
+          <div class="loan-progress-label">
+            <span>Paid: ₱3,800.00 (76%)</span>
+            <span>Remaining: ₱1,200.00 (24%)</span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-fill" id="loan2-progress" style="width:76%; background: linear-gradient(90deg, var(--gold), var(--gold-light));"></div>
+          </div>
+        </div>
+
+        <!-- Loan History -->
+        <div class="card" style="margin-top:1.5rem;">
+          <div class="card-body" style="padding-bottom:.5rem;">
+            <div class="card-title">Loan Payment History</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Loan Type</th>
+                  <th>Amount Paid</th>
+                  <th>Principal</th>
+                  <th>Interest</th>
+                  <th>Balance After</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Jun 15, 2026</td><td>Multi-Purpose</td><td class="amount-neg">₱1,850.00</td><td>₱1,350.00</td><td>₱500.00</td><td>₱32,500.00</td></tr>
+                <tr><td>Jun 15, 2026</td><td>Emergency</td><td class="amount-neg">₱450.00</td><td>₱413.00</td><td>₱37.00</td><td>₱1,200.00</td></tr>
+                <tr><td>May 15, 2026</td><td>Multi-Purpose</td><td class="amount-neg">₱1,850.00</td><td>₱1,336.00</td><td>₱514.00</td><td>₱33,850.00</td></tr>
+                <tr><td>May 15, 2026</td><td>Emergency</td><td class="amount-neg">₱450.00</td><td>₱413.00</td><td>₱37.00</td><td>₱1,650.00</td></tr>
+                <tr><td>Apr 15, 2026</td><td>Multi-Purpose</td><td class="amount-neg">₱1,850.00</td><td>₱1,322.00</td><td>₱528.00</td><td>₱35,186.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SERVICES PAGE ===== -->
+      <section id="page-services" class="page">
+        <div class="page-header">
+          <h1>Other Services</h1>
+          <p>Explore the benefits and programs available to RHUDARDA MPC members.</p>
+        </div>
+
+        <div class="services-grid">
+
+          <!-- Dividends -->
+          <div class="service-card">
+            <div class="service-icon gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <h3>Dividend &amp; Patronage Refund</h3>
+            <p>Members share in the cooperative's earnings. Dividends are declared annually based on share capital and patronage.</p>
+            <div style="margin-top:1rem; background:var(--gray-50); border-radius:8px; padding:.875rem;">
+              <div style="font-size:.6875rem; color:var(--gray-400); font-weight:600; text-transform:uppercase; letter-spacing:.05em;">Your 2025 Dividend</div>
+              <div style="font-size:1.375rem; font-weight:800; color:var(--navy); margin:.25rem 0;">₱3,120.00</div>
+              <span class="badge gold">Released – Jan 2026</span>
+            </div>
+            <a href="#" class="service-action" onclick="showToast('Dividend details loaded.'); return false;">
+              View Full History
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+
+          <!-- Insurance -->
+          <div class="service-card">
+            <div class="service-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Insurance &amp; Mutual Aid Fund</h3>
+            <p>The cooperative's Mutual Aid Fund (MAF) provides financial assistance in times of death, hospitalization, and calamity.</p>
+            <div style="margin-top:1rem;">
+              <div class="profile-row" style="padding:.5rem 0; border-bottom:1px solid var(--gray-50);">
+                <span class="key" style="font-size:.8125rem;">Death Benefit</span>
+                <span class="val" style="font-size:.8125rem;">₱15,000.00</span>
+              </div>
+              <div class="profile-row" style="padding:.5rem 0; border-bottom:1px solid var(--gray-50);">
+                <span class="key" style="font-size:.8125rem;">Hospitalization Aid</span>
+                <span class="val" style="font-size:.8125rem;">₱5,000.00</span>
+              </div>
+              <div class="profile-row" style="padding:.5rem 0;">
+                <span class="key" style="font-size:.8125rem;">Calamity Assistance</span>
+                <span class="val" style="font-size:.8125rem;">₱3,000.00</span>
+              </div>
+            </div>
+            <a href="#" class="service-action" onclick="showToast('Claim form request sent to cooperative office.'); return false;">
+              File a Claim
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+
+          <!-- Education -->
+          <div class="service-card">
+            <div class="service-icon navy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <h3>Education &amp; Training Seminars</h3>
+            <p>RHUDARDA MPC regularly holds cooperative education, livelihood, and financial literacy seminars for members and their families.</p>
+            <div class="seminar-list">
+              <div class="seminar-item">
+                <div class="seminar-date-box"><div class="day">12</div><div class="mon">Jul</div></div>
+                <div class="seminar-info">
+                  <h4>Financial Literacy Workshop</h4>
+                  <p>Polillo Municipal Hall, 8:00 AM</p>
+                </div>
+              </div>
+              <div class="seminar-item">
+                <div class="seminar-date-box"><div class="day">26</div><div class="mon">Jul</div></div>
+                <div class="seminar-info">
+                  <h4>Cooperative Values &amp; Ethics</h4>
+                  <p>RHUDARDA Office, 9:00 AM</p>
+                </div>
+              </div>
+              <div class="seminar-item">
+                <div class="seminar-date-box"><div class="day">09</div><div class="mon">Aug</div></div>
+                <div class="seminar-info">
+                  <h4>Livelihood Program: Aquaculture</h4>
+                  <p>Barangay Poblacion Plaza, 7:30 AM</p>
+                </div>
+              </div>
+            </div>
+            <a href="#" class="service-action" onclick="showToast('Registration form will be sent to your email.'); return false;">
+              Register for a Seminar
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+
+          <!-- Coop Store -->
+          <div class="service-card">
+            <div class="service-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            </div>
+            <h3>Cooperative Store &amp; Services</h3>
+            <p>Members enjoy exclusive access to the cooperative store offering basic goods, appliances, and services at member prices.</p>
+            <div style="margin-top:.875rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+              <span class="badge green">Appliances</span>
+              <span class="badge blue">Basic Goods</span>
+              <span class="badge gold">Member Discounts</span>
+            </div>
+            <a href="#" class="service-action" onclick="showToast('Store catalog request submitted.'); return false;">
+              Browse Products
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== PROFILE PAGE ===== -->
+      <section id="page-profile" class="page">
+        <div class="page-header">
+          <h1>My Profile</h1>
+          <p>Your membership information and account details.</p>
+        </div>
+
+        <div class="profile-header-card">
+          <div class="profile-avatar-lg" id="profile-avatar-lg">JD</div>
+          <div class="profile-header-info">
+            <h2 id="profile-full-name">Juan dela Cruz</h2>
+            <p id="profile-member-id">Member ID: RHU-2021-047</p>
+            <div class="profile-badges">
+              <span class="badge green">Active Member</span>
+              <span class="badge gold">Regular Member</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">Personal Information</div>
+          <div class="profile-row"><span class="key">Full Name</span><span class="val" id="pi-name">Juan dela Cruz</span></div>
+          <div class="profile-row"><span class="key">Date of Birth</span><span class="val">March 12, 1985</span></div>
+          <div class="profile-row"><span class="key">Civil Status</span><span class="val">Married</span></div>
+          <div class="profile-row"><span class="key">Address</span><span class="val">Brgy. Kalayaan, Polillo, Quezon</span></div>
+          <div class="profile-row"><span class="key">Contact Number</span><span class="val">+63 912 345 6789</span></div>
+          <div class="profile-row"><span class="key">Email Address</span><span class="val" id="pi-email">juandelacruz@email.com</span></div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">Membership Details</div>
+          <div class="profile-row"><span class="key">Member ID</span><span class="val">RHU-2021-047</span></div>
+          <div class="profile-row"><span class="key">Membership Type</span><span class="val">Regular Member</span></div>
+          <div class="profile-row"><span class="key">Date Joined</span><span class="val">February 14, 2021</span></div>
+          <div class="profile-row"><span class="key">Years as Member</span><span class="val">5 Years</span></div>
+          <div class="profile-row"><span class="key">Beneficiary</span><span class="val">Maria dela Cruz (Spouse)</span></div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">Security</div>
+          <div class="profile-row">
+            <span class="key">Password</span>
+            <button onclick="showToast('Password change instructions sent to your email.')" style="font-size:.8125rem; font-weight:600; color:var(--teal);">Change Password</button>
+          </div>
+          <div class="profile-row">
+            <span class="key">Last Login</span>
+            <span class="val">June 26, 2026 – 9:14 AM</span>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app-shell -->
+
+<!-- =============================================
+     LOAN APPLICATION MODAL
+============================================= -->
+<div class="modal-overlay" id="loan-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h3 id="modal-title">Apply for a New Loan</h3>
+      <button class="modal-close" onclick="closeLoanModal()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.875rem; color:var(--gray-600); margin-bottom:1.25rem;">Fill out this form to submit your loan application. A loan officer will contact you within 3–5 business days.</p>
+      <div class="form-group">
+        <label>Loan Type</label>
+        <select class="form-control">
+          <option value="">Select loan type...</option>
+          <option>Multi-Purpose Loan</option>
+          <option>Emergency Loan</option>
+          <option>Educational Loan</option>
+          <option>Housing Improvement Loan</option>
+          <option>Agricultural Loan</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Loan Amount Requested (₱)</label>
+        <input type="number" class="form-control" placeholder="e.g. 20000" min="1000" />
+      </div>
+      <div class="form-group">
+        <label>Preferred Repayment Term</label>
+        <select class="form-control">
+          <option>6 months</option>
+          <option>12 months</option>
+          <option>18 months</option>
+          <option>24 months</option>
+          <option>36 months</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Purpose / Remarks</label>
+        <textarea class="form-control" rows="3" placeholder="Briefly describe the purpose of this loan..."></textarea>
+      </div>
+      <div style="background:var(--teal-bg); border-radius:8px; padding:.75rem 1rem; font-size:.8125rem; color:var(--gray-600);">
+        📋 You will need to submit supporting documents (valid ID, payslip, or barangay clearance) to the cooperative office to complete your application.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeLoanModal()">Cancel</button>
+      <button class="btn-teal" onclick="submitLoanApp()">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">Action completed.</span>
+</div>
+
+<!-- =============================================
+     JAVASCRIPT
+============================================= -->
+<script>
+  /* ---- DEMO DATA ---- */
+  const DEMO_MEMBER = {
+    name:     'Juan dela Cruz',
+    firstName:'Juan',
+    initials: 'JD',
+    memberId: 'RHU-2021-047',
+    email:    'juandelacruz@email.com',
+  };
+
+  /* ---- SET DATE IN TOPBAR ---- */
+  (function setDate() {
+    const opts = { weekday:'short', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById('topbar-date').textContent =
+      new Date().toLocaleDateString('en-PH', opts);
+  })();
+
+  /* ---- LOGIN ---- */
+  function handleLogin() {
+    const id  = document.getElementById('member-id').value.trim();
+    const pw  = document.getElementById('password').value;
+    const err = document.getElementById('login-error');
+
+    if (!id || !pw) {
+      err.textContent = 'Please enter your Member ID and Password.';
+      err.style.display = 'block';
+      return;
+    }
+
+    // Demo: any non-empty credentials work
+    err.style.display = 'none';
+    populateMemberData();
+    document.getElementById('page-login').classList.remove('active');
+    document.getElementById('app-shell').classList.add('active');
+    navigateTo('dashboard');
+  }
+
+  // Allow pressing Enter on password field
+  document.getElementById('password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleLogin();
+  });
+  document.getElementById('member-id').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  function populateMemberData() {
+    const m = DEMO_MEMBER;
+    // sidebar
+    document.getElementById('sidebar-avatar').textContent = m.initials;
+    document.getElementById('sidebar-name').textContent   = m.name;
+    document.getElementById('sidebar-id').textContent     = m.memberId;
+    // topbar
+    document.getElementById('topbar-avatar').textContent  = m.initials;
+    // dashboard welcome
+    document.getElementById('welcome-msg').textContent    = `Welcome back, ${m.firstName}! 👋`;
+    // profile
+    document.getElementById('profile-avatar-lg').textContent = m.initials;
+    document.getElementById('profile-full-name').textContent  = m.name;
+    document.getElementById('profile-member-id').textContent  = `Member ID: ${m.memberId}`;
+    document.getElementById('pi-name').textContent            = m.name;
+    document.getElementById('pi-email').textContent           = m.email;
+  }
+
+  /* ---- LOGOUT ---- */
+  function handleLogout() {
+    if (confirm('Are you sure you want to sign out?')) {
+      document.getElementById('app-shell').classList.remove('active');
+      document.getElementById('page-login').classList.add('active');
+      document.getElementById('member-id').value = '';
+      document.getElementById('password').value  = '';
+    }
+  }
+
+  /* ---- NAVIGATION ---- */
+  const PAGE_TITLES = {
+    dashboard: 'Dashboard',
+    savings:   'My Savings',
+    loans:     'My Loans',
+    services:  'Other Services',
+    profile:   'My Profile',
+  };
+
+  function navigateTo(pageId) {
+    // hide all content pages
+    document.querySelectorAll('.content .page').forEach(p => p.classList.remove('active'));
+    // show target page
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    // update nav highlight
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.page === pageId);
+    });
+    // update topbar title
+    document.getElementById('topbar-title').textContent = PAGE_TITLES[pageId] || '';
+    // close sidebar on mobile
+    closeSidebar();
+    // scroll to top
+    window.scrollTo(0, 0);
+  }
+
+  /* ---- SIDEBAR (MOBILE) ---- */
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  /* ---- LOAN MODAL ---- */
+  function openLoanModal() {
+    document.getElementById('loan-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLoanModal() {
+    document.getElementById('loan-modal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function submitLoanApp() {
+    closeLoanModal();
+    showToast('Loan application submitted! You will be contacted within 3–5 business days.');
+  }
+  // Close modal on overlay click
+  document.getElementById('loan-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeLoanModal();
+  });
+
+  /* ---- TOAST ---- */
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* ---- ANIMATE PROGRESS BARS ON LOAD ---- */
+  // Delay to allow DOM to paint then transition
+  window.addEventListener('DOMContentLoaded', function() {
+    // Reset and re-animate progress bars when loans page is shown
+    // (already set inline via style; CSS transitions will fire)
+  });
+</script>
+</body>
+</html>
